@@ -73,22 +73,33 @@ body {
             
             </head>    
     <body>
-             <h1><b>English Premier League - Performance Analysis 2014-15</b></h1>
-	<hr>
-	<button class="MatchesPlayed" style="margin-left: 10px">Matches Played</button>
-	<button class="MatchesWon" onclick=>Matches Won</button>
-	<button class="MatchesDrawn">Matches Drawn</button>
-	<button class="MatchesLost">Matches Lost</button>
-	<button class="GoalsScored">Goals Scored</button>
-	<button class="GoalsConceded">Goals Conceded</button>
-	<button class="CleanSheets">Clean Sheets</button>
-	<button class="Points">Total Points</button>
-	<hr>
+             <h1 align="center"><b>English Premier League - Performance Analysis 2014-15</b></h1>
+
+<p id="menu" align="center">Season
+  <select class="season" id="season">
+      <option value="2014-15">2014-15</option>
+      <option value="2013-14">2013-14</option>
+      <option value="2012-13">2012-13</option>
+  </select>   
+</p>
+
+<p align="center">
+  <button class="MatchesPlayed" style="margin-left: 10px">Matches Played</button>
+  <button class="MatchesWon" onclick=>Matches Won</button>
+  <button class="MatchesDrawn">Matches Drawn</button>
+  <button class="MatchesLost">Matches Lost</button>
+  <button class="GoalsScored">Goals Scored</button>
+  <button class="GoalsConceded">Goals Conceded</button>
+  <button class="CleanSheets">Clean Sheets</button>
+  <button class="Points">Total Points</button>
+</p>
+
+  
 			 
         <script type="text/javascript">
-var margin = {top: 30, right: 20, bottom: 10, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
+var margin = {top: 30, right: 20, bottom: 10, left: 120},
+    width = 1200 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
  
 var formatPercent = d3.format(".0%");
 var sortOrder=false; 
@@ -107,7 +118,6 @@ var yAxis = d3.svg.axis()
 		.orient("left");
 var tip = d3.tip()
   .attr('class', 'd3-tip')
-  //.offset([-10, 0])
   .html(function(d) {
     return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
 	"</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
@@ -120,7 +130,7 @@ var tip = d3.tip()
 	"</span><br><strong>Points:</strong> <span style='color:red'>" + d.Points +
 	"</span><br><strong>PointsPerGame:</strong> <span style='color:red'>" + d.PointsPerGame +
 	"</span>";
-  })
+  });
  
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -131,7 +141,7 @@ var svg = d3.select("body").append("svg")
  
  
  
-d3.csv("premier.csv", type, function(error, data) {
+d3.csv("season2014-15.csv", type, function(error, data) {
   x.domain(data.map(function(d) { return d.ClubName; }));
   y.domain([0,d3.max(data, function(d) { return d.Points; })]);
  
@@ -143,7 +153,7 @@ d3.csv("premier.csv", type, function(error, data) {
 	chartWidth       = 600;
 	
 var color = d3.scale.category20();
-var legenddata = ["Top Clubs","Average Clubs","Relegation Threatened Clubs"]	
+var legenddata = ["Qualified for Champions League for next season","Qualified for Premier League for next season","Relegated to Championships for next season"]	
  var legend = svg.selectAll('.legend')
     .data(legenddata)
     .enter()
@@ -158,10 +168,10 @@ var legenddata = ["Top Clubs","Average Clubs","Relegation Threatened Clubs"]
 legend.append('rect')
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
-    .style('fill', function (d) { if(d=="Top Clubs"){
+    .style('fill', function (d) { if(d=="Qualified for Champions League for next season"){
 	  return "Green";
 	  }
-	  else if(d=="Average Clubs"){
+	  else if(d=="Qualified for Premier League for next season"){
 	  return "Blue";
 	  }
 	  else{
@@ -189,47 +199,29 @@ legend.append('text')
  svg.call(tip);
  
   svg.selectAll(".bar")
-      .data(data).on('mouseover', tip.show)
-      .on('mouseout', tip.hide)
-    .enter().append("rect")
+      .data(data)
+      .enter().append("rect")
       .attr("class", "bar")
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
       .attr("x", function(d) { return x(d.ClubName); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.Points); })
       .attr("height", function(d) { return height - y(d.Points); })
 	  .style("fill",function(d){
-	  if(d.Points>=65){
+	  if(d.Position<5){
 	  return "Green";
 	  }
-	  else if(d.Points>=38 && d.Points<65){
-	  return "Blue";
-	  }
-	  else{
+	  else if(d.Position>17){
 	  return "Red";
 	  }
-	  })
-	 // .style("opacity",0.6)
-	  .on("mouseover",function(d){
-	  d3.select(this)
-	  .style("fill","orangered");
-	  })
-	  .on("mouseout",function(d){
-	  d3.select(this)
-	  .style("fill",function(d){
-	  if(d.Points>=65){
-	  return "Green";
-	  }
-	  else if(d.Points>=38 && d.Points<65){
+	  else{
 	  return "Blue";
 	  }
-	  else{
-	  return "Red";
-	  }
 	  })
-	  })
-	  ;
- 
- 
+
+
+
   d3.select(".MatchesWon")
 				.on('click', function() {
 				
@@ -246,7 +238,8 @@ legend.append('text')
 svg.call(tip);
  
  svg.selectAll(".bar")
-      .data(data).on('mouseover', tip.show)
+      .data(data)
+      .on('mouseover', tip.show)
       .on('mouseout', tip.hide)
 	  .transition().duration(2000)
       .attr("y", function(d) { return y(d.MatchesWon); })
@@ -458,6 +451,407 @@ svg.call(tip);
 	  });
  
 });
+
+d3.select(".season")
+        .on('change', function() {
+            seasonval=this.value;
+            //alert("aloha!");
+
+            
+
+            if(seasonval=="2013-14"){
+              dataset = "season2013-14.csv";
+              updateData(dataset);
+
+              
+              //rel1.src="cardiff.png";
+              //rel2.src="fulham.png";
+              //rel3.src="norwich.png";
+
+              
+            }
+
+            else if(seasonval=="2014-15"){
+              dataset = "season2014-15.csv"
+              updateData(dataset);
+
+              //rel1.src="hull.jpg";
+              //rel2.src="burnley.jpg";
+              //rel3.src="qpr.jpg";
+            }
+
+             else if(seasonval=="2012-13"){
+              dataset = "season2012-13.csv"
+              updateData(dataset);
+
+              // rel1.src="wigan.png";
+              // rel2.src="reading.png";
+              // rel3.src="fulham.png";
+            }
+
+        });
+
+function updateData(dataset) {
+
+d3.select("svg")
+       .remove();
+
+var margin = {top: 30, right: 20, bottom: 10, left: 120},
+    width = 1200 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+ 
+var formatPercent = d3.format(".0%");
+var sortOrder=false; 
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+ 
+var y = d3.scale.linear()
+    .range([height, 0]);
+ 
+//var xAxis = d3.svg.axis()
+  //  .scale(x)
+   // .orient("bottom");
+ 
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  //.offset([-10, 0])
+  .html(function(d) {
+    return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
+  "</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
+  "</span><br><strong>MatchesWon:</strong> <span style='color:red'>" + d.MatchesWon +
+  "</span><br><strong>MatchesDrawn:</strong> <span style='color:red'>" + d.MatchesDrawn +
+  "</span><br><strong>MatchesLost:</strong> <span style='color:red'>" + d.MatchesLost +
+  "</span><br><strong>GoalsScored:</strong> <span style='color:red'>" + d.GoalsScored +
+  "</span><br><strong>GoalsConceded:</strong> <span style='color:red'>" + d.GoalsConceded +
+  "</span><br><strong>CleanSheets:</strong> <span style='color:red'>" + d.CleanSheets +
+  "</span><br><strong>Points:</strong> <span style='color:red'>" + d.Points +
+  "</span><br><strong>PointsPerGame:</strong> <span style='color:red'>" + d.PointsPerGame +
+  "</span>";
+  })
+ 
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  ;
+ 
+ 
+ 
+d3.csv(dataset, type, function(error, data) {
+  x.domain(data.map(function(d) { return d.ClubName; }));
+  y.domain([0,d3.max(data, function(d) { return d.Points; })]);
+ 
+ var legendRectSize = 18,
+    legendSpacing  = 4,
+  gapBetweenGroups = 10
+  spaceForLabels   = 150,
+    spaceForLegend   = 150,
+  chartWidth       = 600;
+  
+var color = d3.scale.category20();
+var legenddata = ["Qualified for Champions League for next season","Qualified for Premier League for next season","Relegated to Championships for next season"]  
+ var legend = svg.selectAll('.legend')
+    .data(legenddata)
+    .enter()
+    .append('g')
+    .attr('transform', function (d, i) {
+        var height = legendRectSize + legendSpacing;
+        var offset = -gapBetweenGroups/2;
+        var horz = spaceForLabels + chartWidth + 40 - legendRectSize;
+        var vert = i * height - offset;
+        return 'translate(' + horz + ',' + vert + ')';
+    });
+legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', function (d) { 
+      if(d=="Qualified for Champions League for next season"){
+    return "Green";
+    }
+    else if(d=="Qualified for Premier League for next season"){
+    return "Blue";
+    }
+    else{
+    return "Red";
+    }
+    })
+    .style('stroke', function (d, i) { return color(i); });
+legend.append('text')
+    .attr('class', 'legend')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function (d) { return d; });
+ 
+ 
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesPlayed");
+ 
+ svg.call(tip);
+ 
+  svg.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.ClubName); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.Points); })
+      .attr("height", function(d) { return height - y(d.Points); })
+    .style("fill",function(d){
+    if(d.Position<5){
+    return "Green";
+    }
+    else if(d.Position>17){
+    return "Red";
+    }
+    else{
+    return "Blue";
+    }
+    })
+   
+ 
+  d3.select(".MatchesWon")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesWon); })
+      .attr("height", function(d) { return height - y(d.MatchesWon); })
+    
+    });
+   
+  d3.select(".MatchesPlayed")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide).transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesPlayed); })
+      .attr("height", function(d) { return height - y(d.MatchesPlayed); })
+    .on("mouseover",function(d){
+    d3.select(this)
+    .style("fill","orangered");
+    })
+    
+    
+    });
+    
+      d3.select(".MatchesDrawn")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesDrawn");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesDrawn); })
+      .attr("height", function(d) { return height - y(d.MatchesDrawn); })
+      
+    
+    });
+    
+      d3.select(".MatchesLost")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesLost");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesLost); })
+      .attr("height", function(d) { return height - y(d.MatchesLost); })
+      
+    
+    });
+    
+      d3.select(".GoalsScored")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("GoalsScored");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsScored); })
+      .attr("height", function(d) { return height - y(d.GoalsScored); })
+      
+    
+    });
+    
+      d3.select(".GoalsConceded")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("GoalsConceded");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsConceded); })
+      .attr("height", function(d) { return height - y(d.GoalsConceded); })
+      
+    
+    });
+    
+      d3.select(".CleanSheets")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("CleanSheets");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.CleanSheets); })
+      .attr("height", function(d) { return height - y(d.CleanSheets); })
+      
+    
+    });
+    
+      d3.select(".Points")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("Points");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.Points); })
+      .attr("height", function(d) { return height - y(d.Points); })
+      
+    
+    });
+    
+      d3.select(".PointsPerGame")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("PointsPerGame");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.PointsPerGame); })
+      .attr("height", function(d) { return height - y(d.PointsPerGame); })
+      
+    
+    });
+ 
+});
+
+       }
  
 function type(d) {
   d.MatchesPlayed = +d.MatchesPlayed;
@@ -467,7 +861,6 @@ function type(d) {
  
  
         </script><br>
-		<h4>Data Courtesy - <a href="http://www.statto.com/football/stats/england/premier-league/2014-2015/table">Statto - EPL Data</a></h4>
 	
     </body>
 </html>
