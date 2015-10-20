@@ -1,0 +1,21 @@
+ClubName,MatchesPlayed,MatchesWon,MatchesDrawn,MatchesLost,GoalsScored,GoalsConceded,CleanSheets,Points,PointsPerGame,Logo,Season,Position
+Arsenal,38,24,7,7,68,41,17,79,2.08,arsenal.jpg,2013,4
+Aston Villa,38,10,8,20,39,61,9,38,1,astonvilla.jpg,2013,15
+Cardiff City,38,7,9,22,32,74,7,30,0.79,cardiff.jpg,2013,20
+Chelsea,38,25,7,6,71,27,18,82,2.16,chelsea.jpg,2013,3
+Crystal Palace,38,13,6,19,33,48,12,45,1.18,palace.jpg,2013,11
+Everton,38,21,9,8,61,39,15,72,1.89,everton.jpg,2013,5
+Fulham,38,9,5,24,40,85,5,32,0.84,fulham.jpg,2013,19
+Hull City,38,10,7,21,38,53,10,37,0.97,hull.jpg,2013,16
+Liverpool,38,26,6,6,101,50,10,84,2.21,liverpool.jpg,2013,2
+Manchester City,38,27,5,6,102,37,16,86,2.26,city.jpg,2013,1
+Manchester United,38,19,7,12,64,43,13,64,1.68,manu.jpg,2013,7
+Newcastle United,38,15,4,19,43,59,10,49,1.29,newcastle.jpg,2013,10
+Norwich City,38,8,9,21,28,62,12,33,0.87,norwich.jpg,2013,18
+Southampton,38,15,11,12,54,46,15,56,1.47,southampton.jpg,2013,8
+Stoke City,38,13,11,14,45,52,9,50,1.32,stoke.jpg,2013,9
+Sunderland,38,10,8,20,41,60,11,38,1,sunderland.jpg,2013,14
+Swansea City,38,11,9,18,54,54,8,42,1.11,swansea.jpg,2013,12
+Tottenham Hotspur,38,21,6,11,55,51,14,69,1.82,tottenham.jpg,2013,6
+West Bromwich Albion,38,7,15,16,43,59,7,36,0.95,westbrom.jpg,2013,17
+West Ham United,38,11,7,20,40,51,14,40,1.05,westham.jpg,2013,13
