@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+                        <style>
+ 
+body {
+  font: 10px sans-serif;
+}
+
+svg {
+  overflow: visible;
+}
+ 
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  stroke-width:1;
+  shape-rendering: crispEdges;
+}
+ 
+.bar {
+  fill: green;
+}
+ 
+.bar:hover {
+  fill: orangered ;
+}
+ 
+/*.x.axis path {
+  display: none;
+}*/
+ 
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  padding-right: 50px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+.d3-tip img {
+	width: 40px; height: 40px;
+}
+ 
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 8px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+ 
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+.legend {
+  fill: black;
+  font: 14px sans-serif;
+  text-anchor: start;
+  font-size: 12px;
+}
+</style>
+        <title>D3 Test</title>
+        <script type="text/javascript" src="d3.js"></script>
+                        <script type="text/javascript" src="index.js"></script>
+ 
+            
+            </head>    
+    <body>
+             <h1 align="center"><b>English Premier League - Performance Analysis</b></h1>
+
+<p id="menu" align="center">Season
+  <select class="season" id="season">
+      <option value="2014-15">2014-15</option>
+      <option value="2013-14">2013-14</option>
+      <option value="2012-13">2012-13</option>
+  </select>   
+</p>
+
+<p align="center">
+  <button class="MatchesPlayed" style="margin-left: 10px">Matches Played</button>
+  <button class="MatchesWon">Matches Won</button>
+  <button class="MatchesDrawn">Matches Drawn</button>
+  <button class="MatchesLost">Matches Lost</button>
+  <button class="GoalsScored">Goals Scored</button>
+  <button class="GoalsConceded">Goals Conceded</button>
+  <button class="CleanSheets">Clean Sheets</button>
+  <button class="Points">Total Points</button>
+</p>
+</br>
+</br>
+		 
+        <script type="text/javascript">
+var margin = {top: 0, right: 20, bottom: 10, left: 120},
+    width = 1200 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+ 
+var formatPercent = d3.format(".0%");
+var sortOrder=false; 
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+ 
+var y = d3.scale.linear()
+    .domain([0,150])
+    .range([height, 0]);
+ 
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+ 
+var yAxis = d3.svg.axis()
+    .scale(y)
+		.orient("left");
+
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([80,0])
+  .html(function(d) {
+    return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
+	"</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
+	"</span><br><strong>MatchesWon:</strong> <span style='color:red'>" + d.MatchesWon +
+	"</span><br><strong>MatchesDrawn:</strong> <span style='color:red'>" + d.MatchesDrawn +
+	"</span><br><strong>MatchesLost:</strong> <span style='color:red'>" + d.MatchesLost +
+	"</span><br><strong>GoalsScored:</strong> <span style='color:red'>" + d.GoalsScored +
+	"</span><br><strong>GoalsConceded:</strong> <span style='color:red'>" + d.GoalsConceded +
+	"</span><br><strong>CleanSheets:</strong> <span style='color:red'>" + d.CleanSheets +
+	"</span><br><strong>Points:</strong> <span style='color:red'>" + d.Points +
+	"</span><br><strong>PointsPerGame:</strong> <span style='color:red'>" + d.PointsPerGame +
+	"</span>";
+  });
+ 
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+ 
+ 
+ 
+d3.csv("season2014-15.csv", type, function(error, data) {
+  x.domain(data.map(function(d) { return d.ClubName; }));
+  y.domain([0,100]);
+  //y.domain([d3.extent(data, function(d) { return d.GoalsScored; })]);
+ 
+ var legendRectSize = 18,
+     legendSpacing  = 4,
+	   gapBetweenGroups = 10
+	   spaceForLabels   = 150,
+     spaceForLegend   = 150,
+	   chartWidth       = 600;
+	
+var color = d3.scale.category20();
+var legenddata = ["Qualified for Champions League for next season","Qualified for Premier League for next season","Relegated to Championships for next season"]	
+ var legend = svg.selectAll('.legend')
+    .data(legenddata)
+    .enter()
+    .append('g')
+    .attr('transform', function (d, i) {
+        var height = legendRectSize + legendSpacing;
+        var offset = -gapBetweenGroups/2;
+        var horz = spaceForLabels + chartWidth + 40 - legendRectSize;
+        var vert = i * height - offset;
+        return 'translate(' + horz + ',' + vert + ')';
+    });
+legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', function (d) { if(d=="Qualified for Champions League for next season"){
+	  return "Green";
+	  }
+	  else if(d=="Qualified for Premier League for next season"){
+	  return "Blue";
+	  }
+	  else{
+	  return "Red";
+	  }
+	  })
+    .style('stroke', function (d, i) { return color(i); });
+legend.append('text')
+    .attr('class', 'legend')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function (d) { return d; });
+  
+  svg.append("g")
+      .attr("class","x axis")
+      .attr("transform","translate(0,"+ height +")")
+      .call(xAxis)
+      .selectAll(".tick text")
+      .call(wrap, x.rangeBand());
+ 
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesPlayed");
+ 
+ svg.call(tip);
+ 
+  svg.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .attr("x", function(d) { return x(d.ClubName); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.Points); })
+      .attr("height", function(d) { return height - y(d.Points); })
+	  .style("fill",function(d){
+	  if(d.Position<5){
+	  return "Green";
+	  }
+	  else if(d.Position>17){
+	  return "Red";
+	  }
+	  else{
+	  return "Blue";
+	  }
+	  })
+
+
+
+
+
+  d3.select(".MatchesWon")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data)
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesWon); })
+      .attr("height", function(d) { return height - y(d.MatchesWon); })
+ 	  
+   /*   y.domain([0,d3.max(data, function(d) { return d.MatchesWon; })])  // change scale to 0, to between 10 and 100
+            svg.select(".yaxis")
+                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(yAxis);
+                    */
+
+	  });
+	 
+	d3.select(".MatchesPlayed")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide).transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesPlayed); })
+      .attr("height", function(d) { return height - y(d.MatchesPlayed); })
+
+   /* y.domain([0,d3.max(data, function(d) { return d.MatchesPlayed; })])  // change scale to 0, to between 10 and 100
+            svg.select(".yaxis")
+                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(yAxis);
+    
+	  */
+	  
+	  });
+	  
+	    d3.select(".MatchesDrawn")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesDrawn");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesDrawn); })
+      .attr("height", function(d) { return height - y(d.MatchesDrawn); })
+      
+	  
+	  });
+	  
+	    d3.select(".MatchesLost")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesLost");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesLost); })
+      .attr("height", function(d) { return height - y(d.MatchesLost); })
+      
+	  
+	  });
+	  
+	    d3.select(".GoalsScored")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("GoalsScored");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	.transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsScored); })
+      .attr("height", function(d) { return height - y(d.GoalsScored); })
+      
+	  
+	  });
+	  
+	    d3.select(".GoalsConceded")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("GoalsConceded");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsConceded); })
+      .attr("height", function(d) { return height - y(d.GoalsConceded); })
+      
+	  
+	  });
+	  
+	    d3.select(".CleanSheets")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("CleanSheets");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	 .transition().duration(2000)
+      .attr("y", function(d) { return y(d.CleanSheets); })
+      .attr("height", function(d) { return height - y(d.CleanSheets); })
+      
+	  
+	  });
+	  
+	    d3.select(".Points")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("Points");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	 .transition().duration(2000)
+      .attr("y", function(d) { return y(d.Points); })
+      .attr("height", function(d) { return height - y(d.Points); })
+      
+	  
+	  });
+	  
+	    d3.select(".PointsPerGame")
+				.on('click', function() {
+				
+				svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("PointsPerGame");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+	 .transition().duration(2000)
+      .attr("y", function(d) { return y(d.PointsPerGame); })
+      .attr("height", function(d) { return height - y(d.PointsPerGame); })
+      
+	  
+	  });
+
+
+ 
+});
+
+d3.select(".season")
+        .on('change', function() {
+            seasonval=this.value;
+            //alert("aloha!");
+
+            
+
+            if(seasonval=="2013-14"){
+              dataset = "season2013-14.csv";
+              updateData(dataset);
+
+              
+              //rel1.src="cardiff.png";
+              //rel2.src="fulham.png";
+              //rel3.src="norwich.png";
+
+              
+            }
+
+            else if(seasonval=="2014-15"){
+              dataset = "season2014-15.csv"
+              updateData(dataset);
+
+              //rel1.src="hull.jpg";
+              //rel2.src="burnley.jpg";
+              //rel3.src="qpr.jpg";
+            }
+
+             else if(seasonval=="2012-13"){
+              dataset = "season2012-13.csv"
+              updateData(dataset);
+
+              // rel1.src="wigan.png";
+              // rel2.src="reading.png";
+              // rel3.src="fulham.png";
+            }
+
+        });
+
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+function updateData(dataset) {
+
+d3.select("svg")
+       .remove();
+
+var margin = {top: 30, right: 20, bottom: 10, left: 120},
+    width = 1200 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+ 
+var formatPercent = d3.format(".0%");
+var sortOrder=false; 
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .1);
+ 
+var y = d3.scale.linear()
+    .range([height, 0]);
+ 
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+ 
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([80, 0])
+  .html(function(d) {
+    return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
+  "</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
+  "</span><br><strong>MatchesWon:</strong> <span style='color:red'>" + d.MatchesWon +
+  "</span><br><strong>MatchesDrawn:</strong> <span style='color:red'>" + d.MatchesDrawn +
+  "</span><br><strong>MatchesLost:</strong> <span style='color:red'>" + d.MatchesLost +
+  "</span><br><strong>GoalsScored:</strong> <span style='color:red'>" + d.GoalsScored +
+  "</span><br><strong>GoalsConceded:</strong> <span style='color:red'>" + d.GoalsConceded +
+  "</span><br><strong>CleanSheets:</strong> <span style='color:red'>" + d.CleanSheets +
+  "</span><br><strong>Points:</strong> <span style='color:red'>" + d.Points +
+  "</span><br><strong>PointsPerGame:</strong> <span style='color:red'>" + d.PointsPerGame +
+  "</span>";
+  })
+ 
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+  ;
+ 
+ 
+ 
+d3.csv(dataset, type, function(error, data) {
+  x.domain(data.map(function(d) { return d.ClubName; }));
+  //y.domain([0,d3.max(data, function(d) { return d.GoalsScored; })]);
+  y.domain([0,100]);
+
+ 
+ var legendRectSize = 18,
+    legendSpacing  = 4,
+  gapBetweenGroups = 10
+  spaceForLabels   = 150,
+    spaceForLegend   = 150,
+  chartWidth       = 600;
+  
+var color = d3.scale.category20();
+var legenddata = ["Qualified for Champions League for next season","Qualified for Premier League for next season","Relegated to Championships for next season"]  
+ var legend = svg.selectAll('.legend')
+    .data(legenddata)
+    .enter()
+    .append('g')
+    .attr('transform', function (d, i) {
+        var height = legendRectSize + legendSpacing;
+        var offset = -gapBetweenGroups/2;
+        var horz = spaceForLabels + chartWidth + 40 - legendRectSize;
+        var vert = i * height - offset;
+        return 'translate(' + horz + ',' + vert + ')';
+    });
+legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', function (d) { 
+      if(d=="Qualified for Champions League for next season"){
+    return "Green";
+    }
+    else if(d=="Qualified for Premier League for next season"){
+    return "Blue";
+    }
+    else{
+    return "Red";
+    }
+    })
+    .style('stroke', function (d, i) { return color(i); });
+legend.append('text')
+    .attr('class', 'legend')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function (d) { return d; });
+ 
+
+ svg.append("g")
+      .attr("class","x axis")
+      .attr("transform","translate(0,"+ height +")")
+      .call(xAxis)
+      .selectAll(".tick text")
+      .call(wrap, x.rangeBand());
+ 
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesPlayed");
+ 
+
+  svg.call(tip);
+ 
+  svg.selectAll(".bar")
+      .data(data)
+      .enter().append("rect")
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.ClubName); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.GoalsScored); })
+      .attr("height", function(d) { return height - y(d.GoalsScored); })
+    .style("fill",function(d){
+    if(d.Position<5){
+    return "Green";
+    }
+    else if(d.Position>17){
+    return "Red";
+    }
+    else{
+    return "Blue";
+    }
+    })
+   
+ 
+  d3.select(".MatchesWon")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesWon); })
+      .attr("height", function(d) { return height - y(d.MatchesWon); })
+    
+    });
+   
+  d3.select(".MatchesPlayed")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("MatchesWon");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide).transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesPlayed); })
+      .attr("height", function(d) { return height - y(d.MatchesPlayed); })
+    
+    
+    });
+    
+      d3.select(".MatchesDrawn")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesDrawn");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesDrawn); })
+      .attr("height", function(d) { return height - y(d.MatchesDrawn); })
+      
+    
+    });
+    
+      d3.select(".MatchesLost")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("MatchesLost");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.MatchesLost); })
+      .attr("height", function(d) { return height - y(d.MatchesLost); })
+      
+    
+    });
+    
+      d3.select(".GoalsScored")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("GoalsScored");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+  .transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsScored); })
+      .attr("height", function(d) { return height - y(d.GoalsScored); })
+      
+    
+    });
+    
+      d3.select(".GoalsConceded")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("GoalsConceded");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+    .transition().duration(2000)
+      .attr("y", function(d) { return y(d.GoalsConceded); })
+      .attr("height", function(d) { return height - y(d.GoalsConceded); })
+      
+    
+    });
+    
+      d3.select(".CleanSheets")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+     // .text("CleanSheets");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.CleanSheets); })
+      .attr("height", function(d) { return height - y(d.CleanSheets); })
+      
+    
+    });
+    
+      d3.select(".Points")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("Points");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.Points); })
+      .attr("height", function(d) { return height - y(d.Points); })
+      
+    
+    });
+    
+      d3.select(".PointsPerGame")
+        .on('click', function() {
+        
+        svg.append("g")
+      .attr("class", "y axis")
+      //.call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      //.text("PointsPerGame");
+ 
+svg.call(tip);
+ 
+ svg.selectAll(".bar")
+      .data(data).on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+   .transition().duration(2000)
+      .attr("y", function(d) { return y(d.PointsPerGame); })
+      .attr("height", function(d) { return height - y(d.PointsPerGame); })
+      
+    
+    });
+
+  function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+ 
+});
+
+       }
+ 
+function type(d) {
+  d.MatchesPlayed = +d.MatchesPlayed;
+  d.ClubName=d.ClubName;
+  return d;
+}
+ 
+ 
+        </script><br>
+	
+    </body>
+</html>

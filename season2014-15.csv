@@ -1,0 +1,21 @@
+ClubName,MatchesPlayed,MatchesWon,MatchesDrawn,MatchesLost,GoalsScored,GoalsConceded,CleanSheets,Points,PointsPerGame,Logo,Season,Position
+Arsenal,38,22,9,7,71,36,13,75,1.97,arsenal.jpg,2014,3
+Aston Villa,38,10,8,20,31,57,10,38,1,astonvilla.jpg,2014,17
+Burnley,38,7,12,19,28,53,10,33,0.87,burnley.jpg,2014,19
+Chelsea,38,26,9,3,73,32,17,87,2.29,chelsea.jpg,2014,1
+Crystal Palace,38,13,9,16,47,51,7,48,1.26,palace.jpg,2014,10
+Everton,38,12,11,15,48,50,10,47,1.24,everton.jpg,2014,11
+Hull City,38,8,11,19,33,51,10,35,0.92,hull.jpg,2014,18
+Leicester City,38,11,8,19,46,55,10,41,1.08,leceister.jpg,2014,14
+Liverpool,38,18,8,12,52,48,14,62,1.63,liverpool.jpg,2014,6
+Manchester City,38,24,7,7,83,38,14,79,2.08,city.jpg,2014,2
+Manchester United,38,20,10,8,62,37,11,70,1.84,manu.jpg,2014,4
+Newcastle United,38,10,9,19,40,63,8,39,1.03,newcastle.jpg,2014,15
+Queens Park Rangers,38,8,6,24,42,73,6,30,0.79,qpr.jpg,2014,20
+Southampton,38,18,6,14,54,33,15,60,1.58,southampton.jpg,2014,7
+Stoke City,38,15,9,14,48,45,9,54,1.42,stoke.jpg,2014,9
+Sunderland,38,7,17,14,31,53,13,38,1,sunderland.jpg,2014,16
+Swansea City,38,16,8,14,46,49,13,56,1.47,swansea.jpg,2014,8
+Tottenham Hotspur,38,19,7,12,58,53,9,64,1.68,tottenham.jpg,2014,5
+West Bromwich Albion,38,11,11,16,38,51,16,44,1.16,westbrom.jpg,2014,13
+West Ham United,38,12,11,15,44,47,9,47,1.24,westham.jpg,2014,12
