@@ -7,11 +7,16 @@
 body {
   font: 10px sans-serif;
 }
+
+svg {
+  overflow: visible;
+}
  
 .axis path,
 .axis line {
   fill: none;
   stroke: #000;
+  stroke-width:1;
   shape-rendering: crispEdges;
 }
  
@@ -23,9 +28,9 @@ body {
   fill: orangered ;
 }
  
-.x.axis path {
+/*.x.axis path {
   display: none;
-}
+}*/
  
 .d3-tip {
   line-height: 1;
@@ -85,7 +90,7 @@ body {
 
 <p align="center">
   <button class="MatchesPlayed" style="margin-left: 10px">Matches Played</button>
-  <button class="MatchesWon" onclick=>Matches Won</button>
+  <button class="MatchesWon">Matches Won</button>
   <button class="MatchesDrawn">Matches Drawn</button>
   <button class="MatchesLost">Matches Lost</button>
   <button class="GoalsScored">Goals Scored</button>
@@ -93,11 +98,11 @@ body {
   <button class="CleanSheets">Clean Sheets</button>
   <button class="Points">Total Points</button>
 </p>
-
-  
-			 
+</br>
+</br>
+		 
         <script type="text/javascript">
-var margin = {top: 30, right: 20, bottom: 10, left: 120},
+var margin = {top: 0, right: 20, bottom: 10, left: 120},
     width = 1200 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
  
@@ -107,17 +112,21 @@ var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
  
 var y = d3.scale.linear()
+    .domain([0,150])
     .range([height, 0]);
  
-//var xAxis = d3.svg.axis()
-  //  .scale(x)
-   // .orient("bottom");
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
  
 var yAxis = d3.svg.axis()
     .scale(y)
 		.orient("left");
+
+
 var tip = d3.tip()
   .attr('class', 'd3-tip')
+  .offset([80,0])
   .html(function(d) {
     return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
 	"</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
@@ -135,22 +144,22 @@ var tip = d3.tip()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-	;
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
  
  
  
 d3.csv("season2014-15.csv", type, function(error, data) {
   x.domain(data.map(function(d) { return d.ClubName; }));
-  y.domain([0,d3.max(data, function(d) { return d.Points; })]);
+  y.domain([0,100]);
+  //y.domain([d3.extent(data, function(d) { return d.GoalsScored; })]);
  
  var legendRectSize = 18,
-    legendSpacing  = 4,
-	gapBetweenGroups = 10
-	spaceForLabels   = 150,
-    spaceForLegend   = 150,
-	chartWidth       = 600;
+     legendSpacing  = 4,
+	   gapBetweenGroups = 10
+	   spaceForLabels   = 150,
+     spaceForLegend   = 150,
+	   chartWidth       = 600;
 	
 var color = d3.scale.category20();
 var legenddata = ["Qualified for Champions League for next season","Qualified for Premier League for next season","Relegated to Championships for next season"]	
@@ -184,12 +193,18 @@ legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
     .text(function (d) { return d; });
- 
+  
+  svg.append("g")
+      .attr("class","x axis")
+      .attr("transform","translate(0,"+ height +")")
+      .call(xAxis)
+      .selectAll(".tick text")
+      .call(wrap, x.rangeBand());
  
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
-    .append("text")
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
@@ -222,13 +237,15 @@ legend.append('text')
 
 
 
+
+
   d3.select(".MatchesWon")
 				.on('click', function() {
 				
 				svg.append("g")
       .attr("class", "y axis")
       //.call(yAxis)
-    .append("text")
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
@@ -245,6 +262,12 @@ svg.call(tip);
       .attr("y", function(d) { return y(d.MatchesWon); })
       .attr("height", function(d) { return height - y(d.MatchesWon); })
  	  
+   /*   y.domain([0,d3.max(data, function(d) { return d.MatchesWon; })])  // change scale to 0, to between 10 and 100
+            svg.select(".yaxis")
+                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(yAxis);
+                    */
+
 	  });
 	 
 	d3.select(".MatchesPlayed")
@@ -267,11 +290,13 @@ svg.call(tip);
       .on('mouseout', tip.hide).transition().duration(2000)
       .attr("y", function(d) { return y(d.MatchesPlayed); })
       .attr("height", function(d) { return height - y(d.MatchesPlayed); })
-	  .on("mouseover",function(d){
-	  d3.select(this)
-	  .style("fill","orangered");
-	  })
-	  
+
+   /* y.domain([0,d3.max(data, function(d) { return d.MatchesPlayed; })])  // change scale to 0, to between 10 and 100
+            svg.select(".yaxis")
+                    .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
+                    .call(yAxis);
+    
+	  */
 	  
 	  });
 	  
@@ -449,6 +474,8 @@ svg.call(tip);
       
 	  
 	  });
+
+
  
 });
 
@@ -491,6 +518,31 @@ d3.select(".season")
 
         });
 
+
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
 function updateData(dataset) {
 
 d3.select("svg")
@@ -508,16 +560,16 @@ var x = d3.scale.ordinal()
 var y = d3.scale.linear()
     .range([height, 0]);
  
-//var xAxis = d3.svg.axis()
-  //  .scale(x)
-   // .orient("bottom");
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
  
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 var tip = d3.tip()
   .attr('class', 'd3-tip')
-  //.offset([-10, 0])
+  .offset([80, 0])
   .html(function(d) {
     return "<img style='position: absolute; top: 6px; right:6px;' src="+ d.Logo +"><strong>ClubName:</strong> <span style='color:red'>" + d.ClubName + 
   "</span><br><strong>MatchesPlayed:</strong> <span style='color:red'>" + d.MatchesPlayed + 
@@ -543,7 +595,9 @@ var svg = d3.select("body").append("svg")
  
 d3.csv(dataset, type, function(error, data) {
   x.domain(data.map(function(d) { return d.ClubName; }));
-  y.domain([0,d3.max(data, function(d) { return d.Points; })]);
+  //y.domain([0,d3.max(data, function(d) { return d.GoalsScored; })]);
+  y.domain([0,100]);
+
  
  var legendRectSize = 18,
     legendSpacing  = 4,
@@ -586,18 +640,26 @@ legend.append('text')
     .attr('y', legendRectSize - legendSpacing)
     .text(function (d) { return d; });
  
+
+ svg.append("g")
+      .attr("class","x axis")
+      .attr("transform","translate(0,"+ height +")")
+      .call(xAxis)
+      .selectAll(".tick text")
+      .call(wrap, x.rangeBand());
  
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
-    .append("text")
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       //.text("MatchesPlayed");
  
- svg.call(tip);
+
+  svg.call(tip);
  
   svg.selectAll(".bar")
       .data(data)
@@ -607,8 +669,8 @@ legend.append('text')
       .attr("class", "bar")
       .attr("x", function(d) { return x(d.ClubName); })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.Points); })
-      .attr("height", function(d) { return height - y(d.Points); })
+      .attr("y", function(d) { return y(d.GoalsScored); })
+      .attr("height", function(d) { return height - y(d.GoalsScored); })
     .style("fill",function(d){
     if(d.Position<5){
     return "Green";
@@ -666,10 +728,6 @@ svg.call(tip);
       .on('mouseout', tip.hide).transition().duration(2000)
       .attr("y", function(d) { return y(d.MatchesPlayed); })
       .attr("height", function(d) { return height - y(d.MatchesPlayed); })
-    .on("mouseover",function(d){
-    d3.select(this)
-    .style("fill","orangered");
-    })
     
     
     });
@@ -848,6 +906,30 @@ svg.call(tip);
       
     
     });
+
+  function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
  
 });
 
