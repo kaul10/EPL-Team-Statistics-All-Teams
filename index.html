@@ -21,7 +21,7 @@ svg {
 }
  
 .bar {
-  fill: green;
+  fill: #2C7D48;
 }
  
 .bar:hover {
@@ -178,13 +178,13 @@ legend.append('rect')
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
     .style('fill', function (d) { if(d=="Qualified for Champions League for next season"){
-	  return "Green";
+	  return "#2C7D48";
 	  }
 	  else if(d=="Qualified for Premier League for next season"){
-	  return "Blue";
+	  return "#334387";
 	  }
 	  else{
-	  return "Red";
+	  return "#8A2838";
 	  }
 	  })
     .style('stroke', function (d, i) { return color(i); });
@@ -225,13 +225,13 @@ legend.append('text')
       .attr("height", function(d) { return height - y(d.Points); })
 	  .style("fill",function(d){
 	  if(d.Position<5){
-	  return "Green";
+	  return "#2C7D48";
 	  }
 	  else if(d.Position>17){
-	  return "Red";
+	  return "#8A2838";
 	  }
 	  else{
-	  return "Blue";
+	  return "#334387";
 	  }
 	  })
 
@@ -624,13 +624,13 @@ legend.append('rect')
     .attr('height', legendRectSize)
     .style('fill', function (d) { 
       if(d=="Qualified for Champions League for next season"){
-    return "Green";
+    return "#2C7D48";
     }
     else if(d=="Qualified for Premier League for next season"){
-    return "Blue";
+    return "#334387";
     }
     else{
-    return "Red";
+    return "#8A2838";
     }
     })
     .style('stroke', function (d, i) { return color(i); });
@@ -673,13 +673,13 @@ legend.append('text')
       .attr("height", function(d) { return height - y(d.GoalsScored); })
     .style("fill",function(d){
     if(d.Position<5){
-    return "Green";
+    return "#2C7D48";
     }
     else if(d.Position>17){
-    return "Red";
+    return "#8A2838";
     }
     else{
-    return "Blue";
+    return "#334387";
     }
     })
    
