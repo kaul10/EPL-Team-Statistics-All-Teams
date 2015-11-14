@@ -102,14 +102,14 @@ svg {
 </br>
 		 
         <script type="text/javascript">
-var margin = {top: 0, right: 20, bottom: 10, left: 120},
-    width = 1200 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 0, right: 300, bottom: 10, left: 100},
+    width = 2500 - margin.left - margin.right,
+    height = 700 - margin.top - margin.bottom;
  
 var formatPercent = d3.format(".0%");
 var sortOrder=false; 
 var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
+    .rangeRoundBands([0, width/1.1], .1);
  
 var y = d3.scale.linear()
     .domain([0,150])
@@ -142,8 +142,9 @@ var tip = d3.tip()
   });
  
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("viewBox", "0 0 " + width + " " + height)
+//    .attr("width", width + margin.left + margin.right)
+  //  .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
  
@@ -157,8 +158,8 @@ d3.csv("season2014-15.csv", type, function(error, data) {
  var legendRectSize = 18,
      legendSpacing  = 4,
 	   gapBetweenGroups = 10
-	   spaceForLabels   = 150,
-     spaceForLegend   = 150,
+	   spaceForLabels   = 1000,
+     spaceForLegend   = 1000,
 	   chartWidth       = 600;
 	
 var color = d3.scale.category20();
@@ -548,16 +549,17 @@ function updateData(dataset) {
 d3.select("svg")
        .remove();
 
-var margin = {top: 30, right: 20, bottom: 10, left: 120},
-    width = 1200 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 0, right: 300, bottom: 10, left: 100},
+    width = 2500 - margin.left - margin.right,
+    height = 700 - margin.top - margin.bottom;
  
 var formatPercent = d3.format(".0%");
 var sortOrder=false; 
 var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
+    .rangeRoundBands([0, width/1.1], .1);
  
 var y = d3.scale.linear()
+    .domain([0,150])
     .range([height, 0]);
  
 var xAxis = d3.svg.axis()
@@ -567,6 +569,7 @@ var xAxis = d3.svg.axis()
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
+
 var tip = d3.tip()
   .attr('class', 'd3-tip')
   .offset([80, 0])
@@ -585,8 +588,9 @@ var tip = d3.tip()
   })
  
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("viewBox", "0 0 " + width + " " + height)
+//    .attr("width", width + margin.left + margin.right)
+  //  .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
   ;
@@ -602,8 +606,8 @@ d3.csv(dataset, type, function(error, data) {
  var legendRectSize = 18,
     legendSpacing  = 4,
   gapBetweenGroups = 10
-  spaceForLabels   = 150,
-    spaceForLegend   = 150,
+  spaceForLabels   = 1000,
+    spaceForLegend   = 1000,
   chartWidth       = 600;
   
 var color = d3.scale.category20();
